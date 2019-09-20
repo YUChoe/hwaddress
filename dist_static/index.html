@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>HWAddress - NOIZZE.net</title>
+
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+
+        <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
+        <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-exp.min.css">
+        <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css">
+        <style>
+        </style>
+    </head>
+    <body>
+
+    <div class="hero hero-sm bg-dark">
+        <div class="hero-body" style="padding-left: 30px; padding-right: 30px;">
+                <h1>Search HW Address</h1>
+                <p>by NOIZZE.net</p>
+        </div>
+    </div>
+
+    <div style="padding:15px;">
+        <div class="input-group">
+            <span class="input-group-addon">MAC address</span>
+            <input id="macinput" type="text" class="form-input" placeholder="xx:yy:zz">
+            <button id="searchbutton" class="btn btn-primary input-group-btn">Search</button>
+        </div>
+    </div>
+<!-- test 08:00:27:bb:5b:8a -->
+    <div class="ad" style="padding:15px;">
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="*"
+                 data-ad-slot="*"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+    </div>
+
+    <div id="result" style="padding:15px;">
+    </div>
+
+    </body>
+    <script>
+$("#macinput").keyup(function(e){
+    if (e.keyCode === 13) {
+        $("#searchbutton").click();
+    }
+});
+$("#searchbutton").click(function(){
+    location.href = '/?sq=' + $("#macinput").val();
+});
+
+var getUrlParameter = function getUrlParameter(sParam) {
+    var sPageURL = window.location.search.substring(1),
+        sURLVariables = sPageURL.split('&'),
+        sParameterName,
+        i;
+
+    for (i = 0; i < sURLVariables.length; i++) {
+        sParameterName = sURLVariables[i].split('=');
+
+        if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+        }
+    }
+};
+
+async function fetch_search(sk, callbackfn) {
+    var url = "https://v3.api.noizze.net:4000/apiv3/hwaddress/search/" + sk;
+    await fetch(url)
+    .then(function(response){
+        if (response.status == 200){
+            return response.json();
+        } else {
+            $("#result").html("<h3>Error</h3>");
+        }
+
+    })
+    .then(function(j){
+        callbackfn(j);
+    });
+
+}
+
+function wrap_template(j) {
+    var r = '<table class="table"><tbody>';
+    r += '<tr><td>Assignment</td><td>'+j["Assignment"]+'</td></tr>';
+    r += '<tr><td>Organization Name</td><td>'+j["Organization Name"]+'</td></tr>';
+    r += '<tr><td>Organization Address</td><td>'+j["Organization Address"]+'</td></tr>';
+    r += '</tbody></table>';
+
+    return r;
+}
+
+$(document).ready(function(){
+    var search_query = getUrlParameter('sq');
+    if (search_query) {
+        $("#macinput").val(search_query);
+        // console.log('fetch data');
+        fetch_search(search_query, function(j){
+            // console.log(j);
+            $("#result").html(wrap_template(j));
+        });
+
+    }
+
+});
+    </script>
+</html>

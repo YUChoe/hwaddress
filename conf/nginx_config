@@ -1,0 +1,14 @@
+# /etc/nginx/sites-enabled/v3.api.noizze.net
+server {
+    listen 4000 ssl http2;
+    server_name v3.api.noizze.net;
+
+    ssl_certificate /etc/letsencrypt/live/v3.api.noizze.net/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/v3.api.noizze.net/privkey.pem;
+    ssl_trusted_certificate /etc/letsencrypt/live/v3.api.noizze.net/fullchain.pem;
+
+    location / {
+        include uwsgi_params;
+        uwsgi_pass unix:/tmp/apiv3.sock;
+    }
+}
