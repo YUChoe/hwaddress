@@ -3,24 +3,26 @@ from flask_cors import CORS
 
 import json
 
-# https://standards.ieee.org/products-services/regauth/index.html
-
 app = Flask(__name__)
 CORS(app)
+
+oui_json = {}
+with open('oui.json', 'r') as fp:
+    oui_json = json.load(fp)
 
 @app.route("/apiv3/hwaddress/search/<hwaddr>")
 def hwaddr_search(hwaddr):
     referrer = request.headers.get("Referer")
-    if 'https://hwaddress.noizze.net' not in referrer and 'http://hwaddress.noizze.s3-website.ap-northeast-2.amazonaws.com' not in referrer:
+    if 'https://hwaddress.noizze.net' not in referrer:
         return abort(400)
 
-    hwaddr = hwaddr.replace(':', '').replace('.', '')
+    separators = [':', '.', '-']
+    for s in separators:
+        hwaddr = hwaddr.replace(s, '')
+
     search_key = hwaddr[:6]
     return_value = { 'search_key': hwaddr, 'Assignment': search_key }
-
-    with open('oui.json', 'r') as fp:
-        j = json.load(fp)
-        return_value.update(j[search_key])
+    return_value.update(oui_json[search_key])
 
     return json.dumps(return_value)
 
